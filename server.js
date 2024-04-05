@@ -4,18 +4,21 @@ const app = express();
 require('dotenv').config();
 const mongoose = require("mongoose");
 app.use(bodyParser.json());
+let routes = require('./routes/sportRoutes')
 
 const userController = require('./controller/userController')
 const sportController = require('./controller/sportsController')
 
 async function generateInitialRandomData(){
-  await userController.createRandomUser();
-  await sportController.generateSports();
-  await sportController.generateEvents();
-  await sportController.generatePosts();
+  // await userController.createRandomUser();
+  // await sportController.generateSports();
+  // await sportController.generateEvents();
+  // await sportController.generatePosts();
+  // await sportController.autoAssignFollower()
 }
 
-generateInitialRandomData();
+
+// generateInitialRandomData();
 
 (async function () {
   const options = {
@@ -33,6 +36,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Server is running" });
 });
 
+app.use(routes)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

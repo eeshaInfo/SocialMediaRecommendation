@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../controller/userController')
-const sportController = require('../controller/sportController')
+const sportController = require('../controller/sportsController')
 
 router.get('/api/recommendations/posts',sportController.recommendedPost)
+
+
+module.exports = router;

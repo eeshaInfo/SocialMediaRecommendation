@@ -3,6 +3,9 @@ const EventModel = require("../model/eventModel");
 const PostModel = require("../model/postModel");
 const faker = require("faker");
 const UserModel = require("../model/userModel");
+const postModel = require("../model/postModel");
+const FollowedUserModel = require('../model/followedUserModel');
+const { Mongoose } = require("mongoose");
 
 let sportController = {};
 
@@ -45,7 +48,6 @@ sportController.generateEvents = async (req, res) => {
 /**
  * Function to generate some random post 
  */
-
 sportController.generatePosts = async(req, res) =>{
     let posts = [];
     let count = 1000;
@@ -66,6 +68,47 @@ sportController.generatePosts = async(req, res) =>{
     await Promise.all(posts);
     console.log(`${count} Posts inserted successfully.`);
    
+}
+
+/**
+ * Function to auto assign follower
+ * @param {*} req 
+ * @param {*} res 
+ */
+sportController.autoAssignFollower = async(req,res) =>{
+  let followedUsers = [];
+  const users = await UserModel.find().select('_id');
+  for (let i = 0; i < users.length; i++) {
+    const follower = new FollowedUserModel({
+      user_id : faker.random.arrayElement(users),
+      followed_user_id : faker.random.arrayElement(users)
+    });
+    followedUsers.push(follower.save());
+  }
+  await Promise.all(followedUsers);
+  console.log(`Follower assigned successfully`);
+}
+
+/**
+ * User recommended post
+ * @param {*} req 
+ * @param {*} res 
+ */
+sportController.recommendedPost = async(req,res) =>{
+  let user_id = req.query?.user_id;
+  const followedUsers = await FollowedUserModel.find({followed_user_id:user_id})
+  const followedUserIds = followedUsers.map(item=>item.user_id)
+  let recommendedPostForUser = await postModel.aggregate([
+    { "$match" : { user_id : { "$in" : followedUserIds } } },
+    { "$sort": { createdAt: -1 } }, 
+    { "$skip": 0 }, 
+    { "$limit": 20 } 
+   ])
+
+  res.send({
+    "message" : "Post fetched successfully",
+    data: recommendedPostForUser
+  })
 }
 
 module.exports = sportController;
