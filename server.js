@@ -22,7 +22,7 @@ async function generateInitialRandomData(){
 
 (async function () {
   const options = {
-    // useNewUrlParser: true,
+    useNewUrlParser: true,
   };
   try {
     await mongoose.connect(process.env.dbUrl, options);
